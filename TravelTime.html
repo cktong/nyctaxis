@@ -31,7 +31,9 @@ var map = new mapboxgl.Map({
     zoom: 8
 });
 
-fetch('traveltime_prediction.json')
+var dataUrl = 'traveltime_prediction.json';
+
+fetch(dataUrl)
 .then(function(response) {
     return response.json().then(function(dataset) {
         map.on('load', function () {
