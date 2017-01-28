@@ -33,7 +33,7 @@ var map = new mapboxgl.Map({
 
 var dataUrl = 'https://storage.cloud.google.com/nyc-taxi-airport/traveltime_prediction.json';
 
-fetch(dataUrl)
+fetch(dataUrl, {mode: 'no-cors'})
 .then(function(response) {
     return response.json().then(function(dataset) {
         map.on('load', function () {
