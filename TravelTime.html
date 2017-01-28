@@ -31,11 +31,20 @@ var map = new mapboxgl.Map({
     zoom: 8
 });
 
-var dataUrl = 'traveltime_prediction.json';
+
+var dataUrl = 'https://storage.cloud.google.com/nyc-taxi-airport/traveltime_prediction.json';
+
+var myHeaders = new Headers();
+// myHeaders.append('Content-Type', 'text/html')
+
+// var options = {method: 'GET', headers: myHeaders, mode: 'no-cors'};
+//
+// var myRequest  = new Request(dataUrl, options);
+
 
 fetch(dataUrl)
 .then(function(response) {
-    return response.json().then(function(dataset) {
+    return response.text().then(function(dataset) {
         map.on('load', function () {
             // Add a GeoJSON source containing the state polygons.
             map.addSource('pickup', {
