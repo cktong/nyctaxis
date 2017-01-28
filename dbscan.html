@@ -30,7 +30,8 @@ var map = new mapboxgl.Map({
     zoom: 8
 });
 
-var dataUrl = 'dbscan_clusters.json';
+var dataUrl = 'https://storage.cloud.google.com/nyc-taxi-airport/dbscan_clusters.json';
+
 fetch(dataUrl)
 .then(function(response) {
     return response.json().then(function(dataset) {
