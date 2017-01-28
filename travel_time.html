@@ -31,16 +31,7 @@ var map = new mapboxgl.Map({
     zoom: 8
 });
 
-
-var dataUrl = 'https://storage.cloud.google.com/nyc-taxi-airport/traveltime_prediction.json';
-
-var myHeaders = new Headers();
-// myHeaders.append('Content-Type', 'text/html')
-
-// var options = {method: 'GET', headers: myHeaders, mode: 'no-cors'};
-//
-// var myRequest  = new Request(dataUrl, options);
-
+var dataUrl = 'https://storage.googleapis.com/nyc-taxi-airport/traveltime_prediction.json';
 
 fetch(dataUrl)
 .then(function(response) {
