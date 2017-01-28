@@ -20,8 +20,8 @@
 </style>
 <div id='map'></div>
 
-<script src='dbscan_clusters.js'></script>
 <script>
+
 mapboxgl.accessToken = 'pk.eyJ1IjoianBvbSIsImEiOiJjaXVzejJrOWswMGVlMm9vZWl2aXRsMmJjIn0.gz6mngDtkn3ldkyFhaErbA';
 var map = new mapboxgl.Map({
     container: 'map',
@@ -30,70 +30,76 @@ var map = new mapboxgl.Map({
     zoom: 8
 });
 
-map.on('load', function () {
-    // Add a GeoJSON source containing the state polygons.
-    map.addSource('pickup', {
-        'type': 'geojson',
-        'data': dataset
-    });
+fetch('dbscan_clusters.json')
+.then(function(response) {
+    return response.json().then(function(dataset) {
+        map.on('load', function () {
+            // Add a GeoJSON source containing the state polygons.
+            map.addSource('pickup', {
+                'type': 'geojson',
+                'data': dataset
+            });
 
-    // Add a layer showing the state polygons.
-    map.addLayer({
-        'id': 'pickup',
-        'type': 'circle',
-        'source': 'pickup',
-        'layout': {
-            'visibility': 'visible'
-        },
-        'paint': {
-            'circle-radius': 2,
-            'circle-color': {
-                property: 'cluster',
-                type: 'exponential',
-                "stops": [
-                    ['-1', "black"],
-                    ['0', "#F9FD02"],
-                    ['4', "#0DFF01"],
-                    ['8', "#01FFDE"],
-                    ['12', "#0167FF"],
-                    ['16', "#AF01FF"],
-                    ['22', "#B00F19"]
+            // Add a layer showing the state polygons.
+            map.addLayer({
+                'id': 'pickup',
+                'type': 'circle',
+                'source': 'pickup',
+                'layout': {
+                    'visibility': 'visible'
+                },
+                'paint': {
+                    'circle-radius': 2,
+                    'circle-color': {
+                        property: 'cluster',
+                        type: 'exponential',
+                        "stops": [
+                            ['-1', "black"],
+                            ['0', "#F9FD02"],
+                            ['4', "#0DFF01"],
+                            ['8', "#01FFDE"],
+                            ['12', "#0167FF"],
+                            ['16', "#AF01FF"],
+                            ['22', "#B00F19"]
 
-        ]
+                ]
+                    }
+                }
+            });
+
+        });
+
+
+        // When a click event occurs near a polygon, open a popup at the location of
+        // the feature, with description HTML from its properties.
+        map.on('click', function (e) {
+            var features = map.queryRenderedFeatures(e.point, { layers: ['pickup'] });
+            if (!features.length) {
+                return;
             }
-        }
+
+            var feature = features[0];
+
+            var popup = new mapboxgl.Popup()
+                .setLngLat(map.unproject(e.point))
+                .setHTML('Cluster : '+ feature.properties.cluster
+                        )
+                .addTo(map);
+        });
+
+        // Use the same approach as above to indicate that the symbols are clickable
+        // by changing the cursor style to 'pointer'.
+        map.on('mousemove', function (e) {
+            var features = map.queryRenderedFeatures(e.point, { layers: ['pickup'] });
+            map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+        });
+
     });
-    
-});
-
-
-// When a click event occurs near a polygon, open a popup at the location of
-// the feature, with description HTML from its properties.
-map.on('click', function (e) {
-    var features = map.queryRenderedFeatures(e.point, { layers: ['pickup'] });
-    if (!features.length) {
-        return;
-    }
-
-    var feature = features[0];
-
-    var popup = new mapboxgl.Popup()
-        .setLngLat(map.unproject(e.point))
-        .setHTML('Cluster : '+ feature.properties.cluster 
-                )
-        .addTo(map);
-});
-
-// Use the same approach as above to indicate that the symbols are clickable
-// by changing the cursor style to 'pointer'.
-map.on('mousemove', function (e) {
-    var features = map.queryRenderedFeatures(e.point, { layers: ['pickup'] });
-    map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
 });
 </script>
 
 </body>
 </html>
-    
 
-    
+
+

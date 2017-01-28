@@ -20,8 +20,9 @@
 </style>
 <div id='map'></div>
 
-<script src='traveltime_prediction.js'></script>
 <script>
+
+
 mapboxgl.accessToken = 'pk.eyJ1IjoianBvbSIsImEiOiJjaXVzejJrOWswMGVlMm9vZWl2aXRsMmJjIn0.gz6mngDtkn3ldkyFhaErbA';
 var map = new mapboxgl.Map({
     container: 'map',
@@ -30,64 +31,71 @@ var map = new mapboxgl.Map({
     zoom: 8
 });
 
-map.on('load', function () {
-    // Add a GeoJSON source containing the state polygons.
-    map.addSource('pickup', {
-        'type': 'geojson',
-        'data': dataset
-    });
+fetch('traveltime_prediction.json')
+.then(function(response) {
+    return response.json().then(function(dataset) {
+        map.on('load', function () {
+            // Add a GeoJSON source containing the state polygons.
+            map.addSource('pickup', {
+                'type': 'geojson',
+                'data': dataset
+            });
 
-    // Add a layer showing the state polygons.
-    map.addLayer({
-        'id': 'pickup',
-        'type': 'circle',
-        'source': 'pickup',
-        'layout': {
-            'visibility': 'visible'
-        },
-        'paint': {
-            'circle-radius': 5,
-            'circle-color': {
-                property: 'travel time',
-                type: 'exponential',
-                "stops": [
-                    [500, "#1F7EFA"],
-                    [4000, "#B00F19"]
-        ]
+            // Add a layer showing the state polygons.
+            map.addLayer({
+                'id': 'pickup',
+                'type': 'circle',
+                'source': 'pickup',
+                'layout': {
+                    'visibility': 'visible'
+                },
+                'paint': {
+                    'circle-radius': 5,
+                    'circle-color': {
+                        property: 'travel time',
+                        type: 'exponential',
+                        "stops": [
+                            [500, "#1F7EFA"],
+                            [4000, "#B00F19"]
+                ]
+                    }
+                }
+            });
+
+        });
+
+
+        // When a click event occurs near a polygon, open a popup at the location of
+        // the feature, with description HTML from its properties.
+        map.on('click', function (e) {
+            var features = map.queryRenderedFeatures(e.point, { layers: ['pickup'] });
+            if (!features.length) {
+                return;
             }
-        }
+
+            var feature = features[0];
+
+            var popup = new mapboxgl.Popup()
+                .setLngLat(map.unproject(e.point))
+                .setHTML('traveltime : '+ feature.properties['travel time']
+                        )
+                .addTo(map);
+        });
+
+        // Use the same approach as above to indicate that the symbols are clickable
+        // by changing the cursor style to 'pointer'.
+        map.on('mousemove', function (e) {
+            var features = map.queryRenderedFeatures(e.point, { layers: ['pickup'] });
+            map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+        });
     });
-    
 });
 
 
-// When a click event occurs near a polygon, open a popup at the location of
-// the feature, with description HTML from its properties.
-map.on('click', function (e) {
-    var features = map.queryRenderedFeatures(e.point, { layers: ['pickup'] });
-    if (!features.length) {
-        return;
-    }
-
-    var feature = features[0];
-
-    var popup = new mapboxgl.Popup()
-        .setLngLat(map.unproject(e.point))
-        .setHTML('traveltime : '+ feature.properties['travel time'] 
-                )
-        .addTo(map);
-});
-
-// Use the same approach as above to indicate that the symbols are clickable
-// by changing the cursor style to 'pointer'.
-map.on('mousemove', function (e) {
-    var features = map.queryRenderedFeatures(e.point, { layers: ['pickup'] });
-    map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
-});
 </script>
 
 </body>
 </html>
-    
 
-    
+
+
